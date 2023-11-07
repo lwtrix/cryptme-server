@@ -1,24 +1,24 @@
 import express from "express"
+import mongoose from "mongoose"
+import authRouter from "./routes/auth.js"
 
 const port = process.env.PORT || 4000 
-const app = express()
+const server = express()
 
-app.use(express.json())
+server.use(express.json())
 
-const news = [
-  {
-    id: 1,
-    title: 'this is a title',
-    content: 'news text content goes here',
-    author: 'LwTrix',
-    publishedOn: '20/09/1999'
-  }
-]
+server.use('/auth', authRouter)
 
-app.get('/news', (req, res) => {
-  res.send(news)
+
+// Database connection and server listening
+
+mongoose.connect(process.env.MONGO_URI)
+
+mongoose.connection.on('connected', () => {
+  console.log('Successfully connected to DB')
+
+  server.listen(port, () => {
+    console.log(`Live on port ${port}`)
+  })
 })
 
-app.listen(port, () => {
-  console.log(`Live on port ${port}`)
-})
