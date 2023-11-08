@@ -1,10 +1,11 @@
 import express from 'express';
+import isAuthenticated from '../middleware/isAuthenticated.js';
 import { Admin } from '../models/admin.js';
 import { Article } from '../models/article.js';
 
 const articlesRouter = express.Router();
 
-articlesRouter.get('/', async (req, res, next) => {
+articlesRouter.get('/', isAuthenticated, async (req, res, next) => {
   try {
     const query = {};
 
@@ -43,7 +44,7 @@ articlesRouter.get('/', async (req, res, next) => {
   }
 });
 
-articlesRouter.post('/', async (req, res, next) => {
+articlesRouter.post('/', isAuthenticated, async (req, res, next) => {
   try {
     const newArticle = await Article.create({
       title: req.body.title,
