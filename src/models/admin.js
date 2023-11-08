@@ -4,8 +4,8 @@ import bcrypt from 'bcrypt'
 const adminSchema = new Schema({
   username: {
     type: String,
-    min: 4,
-    max: 12,
+    minLength: 3,
+    maxLength: 12,
     required: [true, 'Username is required'],
   },
   email: {
@@ -16,8 +16,8 @@ const adminSchema = new Schema({
   password: {
     type: String,
     required: true,
-    min: 6,
-    max: 18
+    minLength: 6,
+    maxLength: 18
   }
 });
 

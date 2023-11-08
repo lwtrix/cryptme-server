@@ -1,5 +1,6 @@
 import express from "express"
 import mongoose from "mongoose"
+import articlesRouter from "./routes/articles.js"
 import authRouter from "./routes/auth.js"
 
 const port = process.env.PORT || 4000 
@@ -8,6 +9,7 @@ const server = express()
 server.use(express.json())
 
 server.use('/auth', authRouter)
+server.use('/articles', articlesRouter)
 
 
 // Database connection and server listening
