@@ -1,5 +1,7 @@
 import express from "express"
+import 'express-async-errors'
 import mongoose from "mongoose"
+import errorHandler from "./middleware/errors/error-handler.js"
 import articlesRouter from "./routes/articles.js"
 import authRouter from "./routes/auth.js"
 
@@ -11,6 +13,7 @@ server.use(express.json())
 server.use('/auth', authRouter)
 server.use('/articles', articlesRouter)
 
+server.use(errorHandler)
 
 // Database connection and server listening
 

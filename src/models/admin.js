@@ -7,6 +7,7 @@ const adminSchema = new Schema({
     minLength: 3,
     maxLength: 12,
     required: [true, 'Username is required'],
+    unique: true
   },
   email: {
     type: String,
