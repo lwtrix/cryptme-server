@@ -20,6 +20,8 @@ const errorHandler = (err, req, res, next) => {
     return res.status(404).send({ errors: [{ message: err.message }] });
   }
 
+  console.log(err)
+
   return res
     .status(500)
     .send({ errors: [{ message: 'Something went wrong..' }] });
