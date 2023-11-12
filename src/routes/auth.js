@@ -63,34 +63,57 @@ authRouter.post(
   }
 );
 
-authRouter.post('/signin', async (req, res, next) => {
-  try {
-    // Check if account with given email exists
-    const foundAdmin = await Admin.findOne({ email: req.body.email });
+authRouter.post(
+  '/signin',
+  [
+    body('email').isEmail().withMessage('Please enter a valid e-mail'),
+    body('password')
+      .trim()
+      .notEmpty()
+      .withMessage('Please enter your password'),
+  ],
+  async (req, res, next) => {
+    try {
+      // Check for validation errors
+      const errors = validationResult(req);
 
-    if (!foundAdmin) {
-      throw new BadRequestError(`There's no existing account with this email`);
+      if (!errors.isEmpty()) {
+        throw new RequestValidationError(errors.array());
+      }
+
+      // Check if account with given email exists
+      const foundAdmin = await Admin.findOne({ email: req.body.email });
+
+      if (!foundAdmin) {
+        throw new BadRequestError(
+          `There's no existing account with this email`
+        );
+      }
+
+      // Check if password is correct
+      const isPasswordCorrect = await bcrypt.compare(
+        req.body.password,
+        foundAdmin.password
+      );
+
+      if (!isPasswordCorrect) {
+        throw new BadRequestError(`Email and password don't match`);
+      }
+
+      // Create a new jwt authorization token and send to client
+      const jwtToken = jwt.sign(
+        { _id: foundAdmin._id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '5m',
+        }
+      );
+
+      res.status(200).send({ status: 'ok', token: jwtToken });
+    } catch (error) {
+      next(error);
     }
-
-    // Check if password is correct
-    const isPasswordCorrect = await bcrypt.compare(
-      req.body.password,
-      foundAdmin.password
-    );
-
-    if (!isPasswordCorrect) {
-      throw new BadRequestError(`Email and password don't match`);
-    }
-
-    // Create a new jwt authorization token and send to client
-    const token = jwt.sign({ _id: foundAdmin._id }, process.env.JWT_SECRET, {
-      expiresIn: '5m',
-    });
-
-    res.json({ status: 'ok', token });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 export default authRouter;
