@@ -23,7 +23,7 @@ authRouter.post(
     body('key')
       .equals(process.env.ADMIN_SIGNUP_KEY)
       .withMessage(
-        'To create an admin account, you will need to enter the correct key'
+        'To create an admin account, you will need to enter the correct auth key'
       ),
   ],
   async (req, res, next) => {
@@ -102,14 +102,20 @@ authRouter.post(
 
       // Create a new jwt authorization token and send to client
       const jwtToken = jwt.sign(
-        { _id: foundAdmin._id },
+        {
+          id: foundAdmin._id,
+          email: foundAdmin.email,
+          username: foundAdmin.username,
+        },
         process.env.JWT_SECRET,
         {
           expiresIn: '5m',
         }
       );
 
-      res.status(200).send({ status: 'ok', token: jwtToken });
+      req.session.jwt_user = jwtToken;
+
+      res.status(200).send({});
     } catch (error) {
       next(error);
     }

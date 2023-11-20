@@ -17,9 +17,8 @@ articlesRouter.get('/', isAuthenticated, async (req, res, next) => {
       query.title = new RegExp(req.query.title, 'i');
     }
 
-    // Check if an author query exists
+    // Check if an author query and author exist
     if (req.query.author) {
-      // Check if author exists
       const foundAuthor = await Admin.findOne({
         username: new RegExp(req.query.author, 'i'),
       }).exec();
