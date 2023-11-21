@@ -12,7 +12,7 @@ const articleSchema = new Schema({
       {
         type: String,
         minLength: 28,
-        maxLength: 300,
+        maxLength: 720,
       },
     ],
     validate: {

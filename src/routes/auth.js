@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import RequestValidationError from '../middleware/errors/request-validation-error.js';
 import BadRequestError from '../middleware/errors/bad-request-error.js';
+import { currentUser } from '../middleware/auth/currentUser.js';
 
 const authRouter = express.Router();
 
@@ -56,7 +57,7 @@ authRouter.post(
         password: req.body.password,
       });
 
-      res.status(201).send({ _id: newAdmin._id });
+      res.status(201).send({ id: newAdmin._id });
     } catch (error) {
       next(error);
     }
@@ -112,14 +113,27 @@ authRouter.post(
           expiresIn: '5m',
         }
       );
-
       req.session.jwt_user = jwtToken;
 
-      res.status(200).send({});
+      res
+        .status(200)
+        .send({
+          id: foundAdmin.id,
+          email: foundAdmin.email,
+          username: foundAdmin.username,
+        });
     } catch (error) {
       next(error);
     }
   }
 );
+
+authRouter.get('/currentUser', currentUser, (req, res) => {
+  if(!req.currentUser) {
+    return res.send({ currentUser: null })
+  }
+
+  res.send({ currentUser: req.currentUser })
+})
 
 export default authRouter;

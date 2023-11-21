@@ -1,14 +1,15 @@
 import express from 'express';
 import NotFoundError from '../middleware/errors/not-found-error.js';
-import isAuthenticated from '../middleware/isAuthenticated.js';
+import { requireAuth } from '../middleware/auth/requireAuth.js';
 import { Admin } from '../models/admin.js';
 import { Article } from '../models/article.js';
 import { body, validationResult } from 'express-validator';
 import RequestValidationError from '../middleware/errors/request-validation-error.js';
+import { currentUser } from '../middleware/auth/currentUser.js';
 
 const articlesRouter = express.Router();
 
-articlesRouter.get('/', isAuthenticated, async (req, res, next) => {
+articlesRouter.get('/', currentUser, requireAuth, async (req, res, next) => {
   try {
     const query = {};
 
@@ -45,7 +46,8 @@ articlesRouter.get('/', isAuthenticated, async (req, res, next) => {
 
 articlesRouter.post(
   '/',
-  isAuthenticated,
+  currentUser,
+  requireAuth,
   [
     body('title')
       .isLength({ min: 3, max: 36 })
@@ -53,7 +55,7 @@ articlesRouter.post(
     body('paragraphs')
       .isArray({ min: 1 })
       .withMessage('At least one paragraph is required to create a new article')
-      .isLength({ min: 28, max: 300 })
+      .isLength({ min: 28, max: 720 })
       .withMessage('Paragraphs must be between 28 and 300 characters long'),
   ],
   async (req, res, next) => {
@@ -64,11 +66,13 @@ articlesRouter.post(
       if (!errors.isEmpty()) {
         throw new RequestValidationError(errors.array());
       }
+      
+      console.log(req.currentUser)
 
       const newArticle = await Article.create({
         title: req.body.title,
         paragraphs: req.body.paragraphs,
-        author: req.user,
+        author: req.currentUser.id,
         publishedAt: Date.now(),
       });
 

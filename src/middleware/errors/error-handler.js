@@ -1,4 +1,5 @@
 import BadRequestError from './bad-request-error.js';
+import NotAuthorizedError from './not-authorized-error.js';
 import NotFoundError from './not-found-error.js';
 import RequestValidationError from './request-validation-error.js';
 
@@ -20,7 +21,11 @@ const errorHandler = (err, req, res, next) => {
     return res.status(404).send({ errors: [{ message: err.message }] });
   }
 
-  console.log(err)
+  if (err instanceof NotAuthorizedError) {
+    return res.status(401).send({ errors: [{ message: err.message }] });
+  }
+
+  console.log(err);
 
   return res
     .status(500)
