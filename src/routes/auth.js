@@ -136,4 +136,10 @@ authRouter.get('/currentUser', currentUser, (req, res) => {
   res.send({ currentUser: req.currentUser })
 })
 
+authRouter.post('/signout', (req, res) => {
+  req.session = null
+
+  res.send({})
+})
+
 export default authRouter;
